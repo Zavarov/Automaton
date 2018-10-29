@@ -1,0 +1,16 @@
+*.class
+*.log
+*.aux
+*.log
+*.out
+*.pdf
+*.toc
+*.html
+/dist/
+/build/
+/target/
+/.jacocoverage/
+nbproject/private/private.xml
+
+/kMeans/build/
+/kMeans/dist/
