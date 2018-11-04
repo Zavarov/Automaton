@@ -17,7 +17,9 @@
 package vartas.automaton;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import vartas.automaton.Tokenizer.Token;
@@ -40,6 +42,10 @@ public class Preprocessor extends Lexer implements Function<Token,Token>{
      */
     protected final Map<String,Process> processes;
     /**
+     * The separator for numbers.
+     */
+    protected final Set<Token> separator;
+    /**
      * The last token that has been read.
      */
     protected Token last_token;
@@ -47,10 +53,12 @@ public class Preprocessor extends Lexer implements Function<Token,Token>{
      * @param dfa the underlying automaton.
      * @param identifier a map that assigns each final state an identifier.
      * @param processes the map that assignes a process to tags.
+     * @param separator the separator for numbers.
      */
-    public Preprocessor(DFA dfa, Map<Integer,String> identifier, Map<String,Process> processes){
+    public Preprocessor(DFA dfa, Map<Integer,String> identifier, Map<String,Process> processes, Set<Token> separator){
         super(dfa,identifier);
         this.processes = processes;
+        this.separator = separator;
     }
     /**
      * Stores the data and sets the last token back to null.
@@ -61,7 +69,6 @@ public class Preprocessor extends Lexer implements Function<Token,Token>{
         super.setInput(data);
         last_token = null;
     }
-    
     /**
      * Returns the next valid token and applies a process defined by the identifier.
      * @return the next valid token or (null,null,null).
@@ -100,6 +107,10 @@ public class Preprocessor extends Lexer implements Function<Token,Token>{
          */
         protected final Map<String,Process> processes = new Object2ObjectOpenHashMap<>();
         /**
+         * All separators for numbers.
+         */
+        protected final Set<Token> separator = new ObjectOpenHashSet<>();
+        /**
          * Adds a process for a specified tag.
          * @param tag the tag on which the process is executed.
          * @param process the process that is executed.
@@ -108,12 +119,19 @@ public class Preprocessor extends Lexer implements Function<Token,Token>{
             processes.put(tag, process);
         }
         /**
+         * Adds a token to the list of separators that always separate two numbers.
+         * @param token the token that separates two numbers.
+         */
+        public void addNumberSeparator(Token token){
+            separator.add(token);
+        }
+        /**
          * @return a preprocessor over the given input. 
          */
         @Override
         public Preprocessor build(){
             Lexer lexer = super.build();
-            return new Preprocessor(lexer,lexer.identifier,new Object2ObjectOpenHashMap<>(processes));
+            return new Preprocessor(lexer,lexer.identifier,new Object2ObjectOpenHashMap<>(processes), separator);
         }
         /**
          * Initializes the builder with expressions for the quotation mark,
@@ -158,7 +176,6 @@ public class Preprocessor extends Lexer implements Function<Token,Token>{
             RegularExpression float2 = RegularExpression.concatenation(number, exponent);
             
             return RegularExpression.union(float1,float2);
-            
         }
     }
     /**
@@ -204,19 +221,18 @@ public class Preprocessor extends Lexer implements Function<Token,Token>{
          * @return the keyword as a normal character.
          */
         @Override
-        public Tokenizer.Token apply(Tokenizer.Token t, Preprocessor p) {
+        public Token apply(Token t, Preprocessor p) {
             //Remove the letter that represents the keyword.
             return new Lexer.Token(t.getLeft().substring(1,t.getLeft().length()), t.getStates(), t.getRight());
         }
     }
     /**
-     * This process assigns the minus sign to the token that follows.
+     * This process assigns spare minus signs to the token that follows.
      */
     public static class Number implements Process{
         /**
-         * If the token that has been read before is a minus, we have read two
-         * minuses in a row. This means that the second one will be added to
-         * the next token, if it exists.<br>
+         * If the previous token is a separator, attach the current token
+         * to the following token, which is supposed to be a number.<br>
          * Otherwise the current token will be returned.
          * @param t the token that has been read.
          * @param p the underlying preprocessor that gives the next tokens.
@@ -224,7 +240,7 @@ public class Preprocessor extends Lexer implements Function<Token,Token>{
          */
         @Override
         public Token apply(Token t, Preprocessor p) {
-            if(p.last_token != null && p.last_token.getRight().equals(t.getRight()) && p.hasNext()){
+            if(p.last_token != null && p.separator.contains(p.last_token) && p.hasNext()){
                 Token next_token = p.processToken();
                 next_token.setLeft(t.getLeft()+next_token.getLeft());
                 return next_token;

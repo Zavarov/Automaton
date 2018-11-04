@@ -34,10 +34,13 @@ public class PreprocessorTest {
         Builder builder = new Builder();
         builder.addExpression(parser.parse("test"), "stuff");
         builder.addExpression(parser.parse("-"), "-");
+        builder.addExpression(parser.parse("\\*"), "*");
         builder.addExpression(Builder.createQuotationMark(), "\"");
         builder.addExpression(Builder.createKeywords(), "keyword");
         builder.addExpression(Builder.createInteger(), "integer");
         builder.addExpression(Builder.createFloat(), "float");
+        builder.addNumberSeparator(new Token("*","*"));
+        builder.addNumberSeparator(new Token("-","-"));
         
         builder.addProcess("\"", new Preprocessor.Quotation());
         builder.addProcess("keyword", new Preprocessor.Keyword());
@@ -134,6 +137,17 @@ public class PreprocessorTest {
         assertEquals(preprocessor.processToken(),new Token(null,null,null));
     }
     
+    @Test
+    public void processTokenTimesNegativeNumberTest(){
+        preprocessor.setInput("12345*-12345");
+        Token token = preprocessor.processToken();
+        assertEquals(token,new Token("12345","integer"));
+        token = preprocessor.processToken();
+        assertEquals(token,new Token("*","*"));
+        token = preprocessor.processToken();
+        assertEquals(token,new Token("-12345","integer"));
+        assertEquals(preprocessor.processToken(),new Token(null,null,null));
+    }
     @Test
     public void processTokenPositiveNumberTest(){
         preprocessor.setInput("12345");
