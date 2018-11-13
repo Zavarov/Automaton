@@ -32,7 +32,7 @@ public class Preprocessor extends Lexer implements Function<Token,Token>{
     /**
      * The identifier the content within two quotation marks.
      */
-    public static final String QUOTATION = "quotation";
+    public static final String STRING = "string";
     /**
      * The token that is returned in case an error occured.
      */
@@ -204,7 +204,7 @@ public class Preprocessor extends Lexer implements Function<Token,Token>{
                         builder.append(buffer.getLeft());
                     }
                 }while(p.hasNext() && !t.getRight().equals(buffer.getRight()));
-                return t.getRight().equals(buffer.getRight()) ? new Token(builder.toString(),t.getStates(),Preprocessor.QUOTATION) : ERROR; 
+                return t.getRight().equals(buffer.getRight()) ? new Token(builder.toString(),t.getStates(),Preprocessor.STRING) : ERROR; 
             //We have a lose quotation mark
             }else{
                 return ERROR;

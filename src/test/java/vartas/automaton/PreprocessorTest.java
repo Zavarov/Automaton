@@ -66,12 +66,12 @@ public class PreprocessorTest {
         preprocessor.setInput("\"xxtestxx\"");
         Token token = preprocessor.processToken();
         assertEquals(token.getLeft(),"xxtestxx");
-        assertEquals(token.getRight(),"quotation");
+        assertEquals(token.getRight(),"string");
         
         preprocessor.setInput("\"xxtestxx\"test");
          token = preprocessor.processToken();
         assertEquals(token.getLeft(),"xxtestxx");
-        assertEquals(token.getRight(),"quotation");
+        assertEquals(token.getRight(),"string");
         token = preprocessor.processToken();
         assertEquals(token.getLeft(),"test");
         assertEquals(token.getRight(),"stuff");
