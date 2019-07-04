@@ -1,0 +1,6 @@
+automaton Simple{
+    state A <<initial>>;
+    state B <<final>>;
+
+    A -> B;
+}

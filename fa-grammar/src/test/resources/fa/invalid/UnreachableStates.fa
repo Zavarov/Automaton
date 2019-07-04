@@ -1,0 +1,7 @@
+automaton UnreachableStates{
+    state A <<initial>>;
+    state B;
+    state C <<final>>;
+
+    A -> B;
+}

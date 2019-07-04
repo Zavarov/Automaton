@@ -1,0 +1,5 @@
+automaton SelfLoop{
+    state A <<initial>> <<final>>;
+
+    A -> A;
+}

@@ -1,0 +1,4 @@
+automaton UnknownOutgoingTransitionState{
+    state A <<initial>>;
+    A -> B;
+}

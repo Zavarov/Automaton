@@ -1,0 +1,10 @@
+automaton Epsilon{
+    state A <<initial>>;
+    state B;
+    state C;
+    state D <<final>>;
+
+    A - 'a' > B;
+    B -> C;
+    C - 'b' > D;
+}

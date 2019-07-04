@@ -1,0 +1,99 @@
+package vartas.fa;
+/**
+ * A grammar for parsing regular expressions
+ */
+grammar RegularExpression{
+    interface RegularExpression;
+
+    RegularExpressionArtifact
+        = RegularExpression;
+
+    UnionExpression implements RegularExpression <100> =
+        leftExpression:RegularExpression
+        "+"
+        rightExpression:RegularExpression;
+
+    ConcatenationExpression implements RegularExpression <110> =
+        leftExpression:RegularExpression
+        rightExpression:RegularExpression;
+
+    KleeneExpression implements RegularExpression <120> =
+        expression:RegularExpression
+        "*";
+
+    BlockExpression implements RegularExpression <130> =
+        "("
+        expression:RegularExpression
+        ")";
+
+    CharacterExpression implements RegularExpression <150> =
+        (
+        UnquotedCharacter
+        |
+        QuotedCharacter
+        );
+
+    IntervalExpression implements RegularExpression <150> =
+        "["
+        start:CharacterExpression
+        "-"
+        end:CharacterExpression
+        "]";
+
+    WildcardExpression implements RegularExpression <150> =
+        ".";
+
+    UnquotedCharacter = Letter | Digit;
+
+    QuotedCharacter = source:Character;
+
+    // ################
+    // # Antlr Tokens #
+    // ################
+
+    token Letter =
+        (
+        'a'..'z'
+        |
+        'A'..'Z'
+        );
+
+    token Digit =
+        (
+        '0'..'9'
+        );
+
+    token Character =
+        '\'' (SingleCharacter | EscapeSequence) '\'' :
+        {
+            setText(getText().substring(1, getText().length() - 1));
+        };
+
+    fragment token SingleCharacter =
+        ~('\'');
+
+    fragment token EscapeSequence =
+        '\\' ('t' | 'b' | 'n' | 'r' | 'f' | '\'' | '"' | '\\');
+
+    // ##############
+    // # AST Rules #
+    // ##############
+
+    astrule UnquotedCharacter =
+        method public char getValue() {
+            return isPresentLetter() ? getLetter().charAt(0) : getDigit().charAt(0);
+        }
+    ;
+
+    astrule QuotedCharacter =
+        method public char getValue() {
+            return de.monticore.MCLiteralsDecoder.decodeChar(getSource());
+        }
+    ;
+
+    astrule CharacterExpression =
+        method public char getValue() {
+            return isPresentQuotedCharacter() ? getQuotedCharacter().getValue() : getUnquotedCharacter().getValue();
+        }
+    ;
+}

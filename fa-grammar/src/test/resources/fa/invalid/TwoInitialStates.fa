@@ -1,0 +1,8 @@
+automaton TwoInitialStates{
+    state A <<initial>>;
+    state B <<initial>>;
+    state C <<final>>;
+
+    A -> B;
+    B -> C;
+}

@@ -1,0 +1,5 @@
+automaton Loop{
+    state A <<initial>> <<final>>;
+
+    A - 'a' > A;
+}

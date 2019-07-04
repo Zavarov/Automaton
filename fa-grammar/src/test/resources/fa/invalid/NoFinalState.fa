@@ -1,0 +1,8 @@
+automaton NoFinalState{
+    state A <<initial>>;
+    state B;
+    state C;
+
+    A -> B;
+    B -> C;
+}

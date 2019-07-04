@@ -1,0 +1,19 @@
+package vartas.fa;
+
+grammar FiniteAutomaton extends de.monticore.literals.Literals{
+    symbol scope FiniteAutomaton =
+        "automaton" Name "{"
+            (State | Transition)*
+        "}";
+
+    symbol State =
+        "state" Name ("<<" (["initial"] | ["final"]) ">>")* ";";
+
+    interface Transition = from:Name to:Name;
+
+    DefaultTransition implements Transition = from:Name "*" ">" to:Name ";";
+
+    EpsilonTransition implements Transition = from:Name "-" ">" to:Name ";";
+
+    BasicTransition implements Transition = from:Name "-" with:CharLiteral ">" to:Name";";
+}

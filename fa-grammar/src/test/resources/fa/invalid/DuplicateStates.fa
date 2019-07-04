@@ -1,0 +1,4 @@
+automaton DuplicateStates{
+    state A;
+    state A;
+}

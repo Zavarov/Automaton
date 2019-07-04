@@ -1,0 +1,9 @@
+automaton WithLoop{
+    state A <<initial>>;
+    state B;
+    state C <<final>>;
+
+    A -> B;
+    B -> C;
+    C -> A;
+}
